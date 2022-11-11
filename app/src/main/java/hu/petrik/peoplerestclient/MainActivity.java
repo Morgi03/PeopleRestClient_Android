@@ -18,6 +18,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
@@ -111,9 +112,12 @@ public class MainActivity extends AppCompatActivity {
         submitButton.setOnClickListener(view -> {
             String name = nameInput.getText().toString().trim();
             String email = emailInput.getText().toString().trim();
-            String age = ageInput.getText().toString().trim();
+            String ageText = ageInput.getText().toString().trim();
             //TODO: validate
-            String json = String.format("{\"name\": \"%s\", \"email\": \"%s\", \"age\": \"%s\"}", name, email, age);
+            int age = Integer.parseInt(ageText);
+            Person person = new Person(0, name, email, age);
+            Gson converter = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+            String json = converter.toJson(person);
             RequestTask task = new RequestTask(base_url, "POST", json);
             task.execute();
         });
