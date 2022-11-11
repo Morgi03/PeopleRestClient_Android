@@ -4,4 +4,7 @@
     <string name="age">Age</string>
     <string name="email">Email</string>
     <string name="name">Name</string>
+    <string name="delete">Delete</string>
+    <string name="update">update</string>
+    <string name="example_person_display">Gipsz Jakab (42)</string>
 </resources>
