@@ -48,7 +48,8 @@
     <ListView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:listitem="@layout/person_list_item"/>
+        tools:listitem="@layout/person_list_item"
+        android:id="@+id/peopleListView"/>
 
     <TextView
         android:layout_width="match_parent"
