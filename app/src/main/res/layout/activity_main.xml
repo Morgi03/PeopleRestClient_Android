@@ -7,11 +7,19 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
+    <ProgressBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/progressBar"
+        android:visibility="gone"
+        />
+
     <LinearLayout
         android:id="@+id/personForm"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="gone">
 
         <EditText
             android:id="@+id/nameInput"
@@ -42,20 +50,40 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/submit" />
+
+        <Button
+            android:id="@+id/updateButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/update"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/cancelButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/cancel" />
+
     </LinearLayout>
 
+    <Button
+        android:id="@+id/createButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/create" />
 
     <ListView
+        android:id="@+id/peopleListView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:listitem="@layout/person_list_item"
-        android:id="@+id/peopleListView"/>
+        tools:listitem="@layout/person_list_item" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="25sp"
-        android:scrollbars="vertical"
-        android:id="@+id/textPeople"/>
-
+    <!--
+         <TextView
+         android:id="@+id/textPeople"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:scrollbars="vertical"
+         android:textSize="25sp" />
+     -->
 </LinearLayout>
