@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,11 +35,11 @@ public class MainActivity extends AppCompatActivity {
     private Button updateButton;
     private Button cancelButton;
     private Button createButton;
-    private LinearLayout personFrom;
+    private LinearLayout personForm;
     private ListView peopleListView;
+    private ProgressBar progressBar;
     private String base_url = "https://retoolapi.dev/0xaaMh/people";
     private int updateId;
-    private ProgressBar progressBar;
 
     private class RequestTask extends AsyncTask<Void, Void, Response> {
         private String requestUrl;
@@ -49,15 +51,15 @@ public class MainActivity extends AppCompatActivity {
             this.requestMethod = "GET";
         }
 
+        public RequestTask(String requestUrl, String requestMethod) {
+            this.requestUrl = requestUrl;
+            this.requestMethod = requestMethod;
+        }
+
         public RequestTask(String requestUrl, String requestMethod, String requestBody) {
             this.requestUrl = requestUrl;
             this.requestMethod = requestMethod;
             this.requestBody = requestBody;
-        }
-
-        public RequestTask(String requestUrl, String requestMethod) {
-            this.requestUrl = requestUrl;
-            this.requestMethod = requestMethod;
         }
 
         @Override
@@ -67,7 +69,6 @@ public class MainActivity extends AppCompatActivity {
                 switch (requestMethod) {
                     case "GET":
                         response = RequestHandler.get(requestUrl);
-
                         break;
                     case "POST":
                         response = RequestHandler.post(requestUrl, requestBody);
@@ -84,7 +85,6 @@ public class MainActivity extends AppCompatActivity {
             }
             return response;
         }
-
 
         @Override
         protected void onPreExecute() {
@@ -104,24 +104,23 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, response.getContent(), Toast.LENGTH_SHORT).show();
                 return;
             }
-            switch (requestMethod) {
+            switch (requestMethod){
                 case "GET":
                     String content = response.getContent();
                     Gson converter = new Gson();
                     List<Person> people = Arrays.asList(converter.fromJson(content, Person[].class));
+                    Log.d("JSON fromJSON: ", people.get(0) + " " + people.get(0).getId());
                     PeopleAdapter adapter = new PeopleAdapter(people);
                     peopleListView.setAdapter(adapter);
                     break;
                 default:
-                    if (response.getResponseCode() >= 201 && response.getResponseCode() < 300) {
+                    if (response.getResponseCode() >= 200 && response.getResponseCode() < 300) {
                         cancelForm();
                         RequestTask task = new RequestTask(base_url);
                         task.execute();
                     }
                     break;
             }
-
-
         }
     }
 
@@ -131,7 +130,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         init();
         addListeners();
-
+        RequestTask task = new RequestTask(base_url);
+        task.execute();
     }
 
     private void addListeners() {
@@ -144,24 +144,24 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+
         updateButton.setOnClickListener(view -> {
             try {
                 String json = createJsonFromFormdata();
                 String url = base_url + "/" + updateId;
-                RequestTask task = new RequestTask(base_url, "PUT", json);
+                RequestTask task = new RequestTask(url, "PUT", json);
                 task.execute();
             } catch (IllegalArgumentException e) {
                 Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
 
-
         cancelButton.setOnClickListener(view -> {
             cancelForm();
         });
 
         createButton.setOnClickListener(view -> {
-            personFrom.setVisibility(View.VISIBLE);
+            personForm.setVisibility(View.VISIBLE);
             submitButton.setVisibility(View.VISIBLE);
             updateButton.setVisibility(View.GONE);
             createButton.setVisibility(View.GONE);
@@ -172,13 +172,13 @@ public class MainActivity extends AppCompatActivity {
         String name = nameInput.getText().toString().trim();
         String email = emailInput.getText().toString().trim();
         String ageText = ageInput.getText().toString().trim();
-        if (name.isEmpty()) {
+        if (name.isEmpty()){
             throw new IllegalArgumentException("Name is required");
         }
-        if (email.isEmpty()) {
+        if (email.isEmpty()){
             throw new IllegalArgumentException("Email is required");
         }
-        if (ageText.isEmpty()) {
+        if (ageText.isEmpty()){
             throw new IllegalArgumentException("Age is required");
         }
         int age = Integer.parseInt(ageText);
@@ -188,11 +188,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void cancelForm() {
-        nameInput.setText("");
         updateId = 0;
+        nameInput.setText("");
         emailInput.setText("");
         ageInput.setText("");
-        personFrom.setVisibility(View.GONE);
+        personForm.setVisibility(View.GONE);
         createButton.setVisibility(View.VISIBLE);
     }
 
@@ -201,14 +201,15 @@ public class MainActivity extends AppCompatActivity {
         emailInput = findViewById(R.id.emailInput);
         ageInput = findViewById(R.id.ageInput);
         submitButton = findViewById(R.id.submitButton);
-        createButton = findViewById(R.id.createButton);
         updateButton = findViewById(R.id.updateButton);
         cancelButton = findViewById(R.id.cancelButton);
-        personFrom = findViewById(R.id.personForm);
+        createButton = findViewById(R.id.createButton);
+        personForm = findViewById(R.id.personForm);
         peopleListView = findViewById(R.id.peopleListView);
         progressBar = findViewById(R.id.progressBar);
-        // TextView peopleTextView = findViewById(R.id.textPeople);
-        // peopleTextView.setMovementMethod(new ScrollingMovementMethod());
+
+//        TextView peopleTextview = findViewById(R.id.textPeople);
+//        peopleTextview.setMovementMethod(new ScrollingMovementMethod());
     }
 
     private class PeopleAdapter extends ArrayAdapter<Person> {
@@ -235,7 +236,7 @@ public class MainActivity extends AppCompatActivity {
                 emailInput.setText(actualPerson.getEmail());
                 ageInput.setText(String.valueOf(actualPerson.getAge()));
 
-                personFrom.setVisibility(View.VISIBLE);
+                personForm.setVisibility(View.VISIBLE);
                 submitButton.setVisibility(View.GONE);
                 updateButton.setVisibility(View.VISIBLE);
                 createButton.setVisibility(View.GONE);
